@@ -1,0 +1,29 @@
+version: '3.1'
+
+services:
+  db:
+    image: mariadb:10.6
+    container_name: cyberguard-db
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: Tormenta+De+Espadas+345
+      MARIADB_DATABASE: cyberguard
+      MARIADB_USER: cyber
+      MARIADB_PASSWORD: Tormenta+De+Espadas+345
+    ports:
+      - "3307:3306"        # Host 3307 -> Contenedor 3306
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: cyberguard-phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: db        # apunta al servicio 'db'
+      PMA_PORT: 3306
+    ports:
+      - "8080:80"
+
+volumes:
+  mariadb_data: {}
