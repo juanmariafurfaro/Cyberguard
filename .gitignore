@@ -31,3 +31,15 @@ build/
 
 ### VS Code ###
 .vscode/
+# Docker
+*.pid
+*.seed
+*.bak
+.env
+# Node (si sumás React después)
+node_modules/
+dist/
+
+# OS
+.DS_Store
+Thumbs.db 
