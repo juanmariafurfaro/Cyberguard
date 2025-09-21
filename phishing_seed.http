@@ -1,0 +1,295 @@
+### CyberGuard — Seed del Curso "Phishing 101"
+### Compatible con: /api/admin/content/{course|module|simulation|scenario}
+### Requiere VSCode REST Client (humao.rest-client)
+
+@base = http://localhost:8081/api
+@contentType = application/json
+@adminToken = Bearer {{LOGIN_ADMIN.response.body.token}}
+@userToken  = Bearer {{LOGIN_USER.response.body.token}}
+
+############################################################
+# 0) LOGIN
+############################################################
+# @name LOGIN_ADMIN
+POST {{base}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@cyberguard.local",
+  "password": "Admin123!"
+}
+
+# (opcional) USER para listar catálogo
+# @name LOGIN_USER
+POST {{base}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "beto@gmail.com",
+  "password": "Contrasenia123"
+}
+
+############################################################
+# 1) CURSO
+############################################################
+# @name createCourse
+POST {{base}}/admin/content/course
+Authorization: {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "nombre": "Phishing 101",
+  "descripcion": "Curso introductorio para reconocer, analizar y evitar ataques de phishing.",
+  "active": true
+}
+
+@COURSE_ID = {{createCourse.response.body.id}}
+
+############################################################
+# 2) MODULO 1 (TEORIA) — ¿Qué es el Phishing?
+############################################################
+# @name mod1
+POST {{base}}/admin/content/module
+Authorization: {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "cursoId": {{COURSE_ID}},
+  "nombre": "¿Qué es el Phishing? Conceptos Fundamentales",
+  "tipo": "TEORIA",
+  "orden": 1,
+  "active": true
+}
+
+@MODULE1_ID = {{mod1.response.body.id}}
+
+# NOTA: Tu backend actual NO expone un endpoint para crear "recursos" (teoría).
+# Debajo hay SQL OPCIONAL (comentado) para insertar una teoría en la tabla `recursos`
+# y luego vincularla a un escenario si quisieras (usa tablas `recursos` y `escenario_recurso`).
+#
+# /* SQL: insertar teoría como recurso HTML (accesibilidad: transcript) */
+# /* Ejecutar en phpMyAdmin si lo deseas */
+# /*
+# INSERT INTO recursos (tipo, url, transcript, alt_text, created_at, updated_at)
+# VALUES ('HTML', 'about:blank',
+# '## ¿Qué es el Phishing?\nObjetivo: robar información sensible...\n - Phishing tradicional\n - Spear/Whaling\n - Smishing/Vishing\n Evolución...', 
+# NULL, NOW(), NOW());
+# SELECT LAST_INSERT_ID() AS recurso_id;
+# */
+
+############################################################
+# 3) ACTIVIDAD — "Phishing IQ — Detección Rápida" (SIMULACION)
+############################################################
+# @name modSim1
+POST {{base}}/admin/content/module
+Authorization: {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "cursoId": {{COURSE_ID}},
+  "nombre": "Phishing IQ — Detección Rápida",
+  "tipo": "SIMULACION",
+  "orden": 2,
+  "active": true
+}
+
+@MODULE_SIM1_ID = {{modSim1.response.body.id}}
+
+# Crear simulación
+# @name sim1
+POST {{base}}/admin/content/simulation
+Authorization: {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "moduloId": {{MODULE_SIM1_ID}},
+  "nombre": "Detección Rápida de Phishing",
+  "descripcion": "Evalúa si un correo es legítimo o phishing en pocos segundos.",
+  "tipo": "PHISHING",
+  "orden": 1,
+  "active": true
+}
+
+@SIM1_ID = {{sim1.response.body.id}}
+
+# Escenarios (sin payload; luego podés adjuntar recursos cuando habilites el endpoint de creación de recursos)
+# @name esc1
+POST {{base}}/admin/content/scenario
+Authorization: {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "simulacionId": {{SIM1_ID}},
+  "nombre": "Premio inesperado",
+  "descripcion": "Correo que ofrece un premio y pide datos sensibles.",
+  "orden": 1,
+  "dificultad": 1,
+  "active": true
+}
+
+# @name esc2
+POST {{base}}/admin/content/scenario
+Authorization: {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "simulacionId": {{SIM1_ID}},
+  "nombre": "Restablecer contraseña urgente",
+  "descripcion": "Simula ser del banco; induce urgencia.",
+  "orden": 2,
+  "dificultad": 2,
+  "active": true
+}
+
+# @name esc3
+POST {{base}}/admin/content/scenario
+Authorization: {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "simulacionId": {{SIM1_ID}},
+  "nombre": "Notificación de entrega",
+  "descripcion": "Seguimiento de envío (legítimo).",
+  "orden": 3,
+  "dificultad": 1,
+  "active": true
+}
+
+############################################################
+# 4) MODULO 2 (TEORIA) — Cómo identificar un ataque
+############################################################
+# @name mod2
+POST {{base}}/admin/content/module
+Authorization: {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "cursoId": {{COURSE_ID}},
+  "nombre": "Cómo Identificar un Ataque de Phishing",
+  "tipo": "TEORIA",
+  "orden": 3,
+  "active": true
+}
+
+@MODULE2_ID = {{mod2.response.body.id}}
+
+############################################################
+# 5) ACTIVIDAD — Detecta las Señales (SIMULACION)
+############################################################
+# @name modSim2
+POST {{base}}/admin/content/module
+Authorization: {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "cursoId": {{COURSE_ID}},
+  "nombre": "Detecta las Señales",
+  "tipo": "SIMULACION",
+  "orden": 4,
+  "active": true
+}
+
+@MODULE_SIM2_ID = {{modSim2.response.body.id}}
+
+# @name sim2
+POST {{base}}/admin/content/simulation
+Authorization: {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "moduloId": {{MODULE_SIM2_ID}},
+  "nombre": "Análisis de Correo Complejo",
+  "descripcion": "Marca señales: remitente, enlace, urgencia, adjunto.",
+  "tipo": "PHISHING",
+  "orden": 1,
+  "active": true
+}
+
+@SIM2_ID = {{sim2.response.body.id}}
+
+# @name escTagging
+POST {{base}}/admin/content/scenario
+Authorization: {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "simulacionId": {{SIM2_ID}},
+  "nombre": "Factura Urgente — Empresa Falsa",
+  "descripcion": "Identifica señales del correo (hotspots).",
+  "orden": 1,
+  "dificultad": 3,
+  "active": true
+}
+
+############################################################
+# 6) MODULO 3 (TEORIA) — Protección y respuesta
+############################################################
+# @name mod3
+POST {{base}}/admin/content/module
+Authorization: {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "cursoId": {{COURSE_ID}},
+  "nombre": "Protección y Respuesta ante Phishing",
+  "tipo": "TEORIA",
+  "orden": 5,
+  "active": true
+}
+
+@MODULE3_ID = {{mod3.response.body.id}}
+
+############################################################
+# 7) QUIZ FINAL (Módulo) — (sin preguntas por falta de endpoint)
+############################################################
+# @name modQuiz
+POST {{base}}/admin/content/module
+Authorization: {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "cursoId": {{COURSE_ID}},
+  "nombre": "Quiz Final: Phishing 101",
+  "tipo": "QUIZ",
+  "orden": 6,
+  "active": true
+}
+
+@MODULE_QUIZ_ID = {{modQuiz.response.body.id}}
+
+# NOTA: el backend no expone endpoint admin para crear preguntas/opciones (tablas `preguntas` y `opciones`).
+# Debajo hay SQL OPCIONAL (comentado) que inserta 5 preguntas con 3 opciones c/u,
+# marcando la correcta con `es_correcta = 1`.
+
+# /* SQL: insertar preguntas (enunciado) + opciones (texto, es_correcta) */
+# /*
+# -- Reemplaza :MODULE_QUIZ_ID por el valor numérico real
+# SET @mod := :MODULE_QUIZ_ID;
+#
+# INSERT INTO preguntas (enunciado, orden, modulo_id, created_at, updated_at)
+# VALUES
+# ('¿Cuál es el objetivo principal del phishing?', 1, @mod, NOW(), NOW()),
+# ('¿Cuál NO es un tipo de phishing?', 2, @mod, NOW(), NOW()),
+# ('Una señal común en correos fraudulentos es:', 3, @mod, NOW(), NOW()),
+# ('Si sospechas de un correo, lo primero es:', 4, @mod, NOW(), NOW()),
+# ('Si caíste en un phishing bancario, ¿qué acción es prioritaria?', 5, @mod, NOW(), NOW());
+#
+# -- Opciones (ajusta ids según AUTO_INCREMENT)
+# -- Ejemplo para la primera pregunta (id = P1):
+# -- INSERT INTO opciones (texto, es_correcta, pregunta_id, created_at, updated_at)
+# -- VALUES ('Reducir el spam', 0, P1, NOW(), NOW()), ('Robar información sensible', 1, P1, NOW(), NOW()), ('Actualizar software', 0, P1, NOW(), NOW());
+# */
+
+############################################################
+# 8) LISTADOS (con token de USER)
+############################################################
+GET {{base}}/courses
+Authorization: {{userToken}}
+
+###
+GET {{base}}/courses/{{COURSE_ID}}/modules
+Authorization: {{userToken}}
+
+###
+GET {{base}}/quiz/module/{{MODULE_QUIZ_ID}}
+Authorization: {{userToken}}

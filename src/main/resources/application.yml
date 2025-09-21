@@ -1,10 +1,11 @@
 server:
   port: 8081   # estás levantando en 8081 según el log
 
-jwt:
-  # 🔐 Clave de al menos 256 bits. Base64 de 32 bytes = 44 chars aprox.
-  secret: uKq3m7wYf8xB2e1pQ9rGz4s8V1nJ0tC6dE3hL9mA2kQ=   # ejemplo; cámbiala por una tuya
-  expiration-ms: 2592000   # ej. 30 días
+security:
+  jwt:
+    # 32+ chars. Usá algo propio y largo.
+    secret: "x9Q4u2!cPZ0sG3kL7vN1wR5yT8bM2dF6hJ0aK3pR8sV1qW4z" 
+    expiration-ms: 86400000  # 1 día
 spring:
   datasource:
     url: jdbc:mariadb://localhost:3307/cyberguard   # ahora puerto 3307
@@ -16,3 +17,23 @@ spring:
     show-sql: true
     properties:
       hibernate.format_sql: true
+  # Logging Configuration
+logging:
+  level:
+    com.socialeng.platform: DEBUG
+    org.springframework.security: DEBUG
+
+# CORS Configuration
+app:
+  cors:
+    allowed-origins: http://localhost:3000,https://yourdomain.com
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when_authorized
