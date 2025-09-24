@@ -9,6 +9,7 @@ public class CourseProgressDto {
     private Long courseId;
     private String courseTitle;
     private String courseDescription;
+    private String courseType;
     private Integer currentModule;
     private Double completionPercentage;
     private Boolean isCompleted;
