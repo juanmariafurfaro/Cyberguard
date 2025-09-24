@@ -1,10 +1,10 @@
 package com.furfaro.cyberguard.services;
 
-
 import com.furfaro.cyberguard.dto.CertificateDto;
 import com.furfaro.cyberguard.dto.CourseProgressDto;
 import com.furfaro.cyberguard.dto.UserProfileResponse;
 import com.furfaro.cyberguard.exception.ResourceNotFoundException;
+import com.furfaro.cyberguard.models.ProgressStatus;
 import com.furfaro.cyberguard.models.User;
 import com.furfaro.cyberguard.models.UserCertificate;
 import com.furfaro.cyberguard.models.UserProgress;
@@ -37,10 +37,10 @@ public class UserService {
                         .courseId(progress.getCourse().getId())
                         .courseTitle(progress.getCourse().getTitle())
                         .courseDescription(progress.getCourse().getDescription())
-                        .currentModule(progress.getCurrentModule())
-                        .completionPercentage(progress.getCompletionPercentage())
-                        .isCompleted(progress.getIsCompleted())
-                        .finalScore(progress.getFinalScore())
+                        .currentModule(progress.getCurrentModuleIndex()) // CORREGIDO: usar getCurrentModuleIndex()
+                        .completionPercentage(progress.getProgressPercentage())
+                        .isCompleted(progress.getStatus() == ProgressStatus.COMPLETED) // CORREGIDO: usar getStatus()
+                        .finalScore(progress.getFinalScore() != null ? progress.getFinalScore().doubleValue() : null) // CORREGIDO: conversión segura
                         .build())
                 .collect(Collectors.toList());
 

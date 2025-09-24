@@ -9,49 +9,55 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "courses")
+@Table(name = "modules")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Course {
-   
+public class Module {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-   
+    
     @Column(nullable = false)
     private String title;
-   
+    
     @Column(columnDefinition = "TEXT")
     private String description;
-   
+    
     @Enumerated(EnumType.STRING)
-    private CourseType courseType; // PHISHING, PRETEXTING
-   
     @Column(nullable = false)
-    private Integer passingScore = 70; // Puntuación mínima para aprobar
-
-    @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true; // CAMPO FALTANTE
-   
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ModuleType moduleType;
+    
+    @Column(name = "order_index", nullable = false)
+    private Integer orderIndex; // Orden del módulo en el curso
+    
+    @Column(nullable = false)
+    private Boolean isRequired = true;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_id", nullable = false)
+    private Course course;
+    
+    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("orderIndex ASC")
-    private List<Module> modules = new ArrayList<>();
-
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserProgress> userProgress = new ArrayList<>();
-   
+    private List<ModuleContent> contents = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Question> questions = new ArrayList<>();
+    
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-   
+    
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
-   
+    
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
 }
+
